@@ -39,7 +39,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
 
     // Generate password character by character with a delay
     int index = 0;
-    Timer.periodic(Duration(milliseconds: 50), (timer) {
+    Timer.periodic(const Duration(milliseconds: 50), (timer) {
       setState(() {
         if (index < length) {
           password += generatePasswordCharacter();
@@ -110,10 +110,10 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
         Container(
           width: 24,
           height: 24,
-          decoration: ShapeDecoration(
+          decoration: const ShapeDecoration(
             color: Colors.transparent,
             shape: RoundedRectangleBorder(
-              side: const BorderSide(width: 3, color: Color(0xFFF8EF00)),
+              side: BorderSide(width: 3, color: Color(0xFFF8EF00)),
               // borderRadius: BorderRadius.circular(7),
             ),
           ),
@@ -121,7 +121,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
             value: value,
             onChanged: onChanged,
             activeColor: Colors.transparent,
-            checkColor: Color(0xFFF8EF00),
+            checkColor: const Color(0xFFF8EF00),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(7),
             ),
@@ -130,7 +130,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
         ),
         Text(
           "   $label",
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white),
         ),
       ],
     );
@@ -148,7 +148,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
         title: Text(
           'PASSWORD \nGENERATOR',
           style: GoogleFonts.tomorrow(
-            color: Color(0xFFF8EF00),
+            color: const Color(0xFFF8EF00),
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -160,7 +160,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Password field
-            SizedBox(
+            const SizedBox(
               height: 30,
             ),
             GestureDetector(
@@ -180,7 +180,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                             textAlign: TextAlign.center,
                             style: GoogleFonts.tomorrow(
                               fontSize: 30,
-                              color: Color(0xFFF8EF00), // Set text color
+                              color: const Color(0xFFF8EF00), // Set text color
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -191,7 +191,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                 },
                 child: Container(
                   padding: const EdgeInsets.all(20),
-                  decoration: ShapeDecoration(
+                  decoration: const ShapeDecoration(
                     color: Color(0x1900F0FF),
                     shape: RoundedRectangleBorder(
                       side: BorderSide(width: 2, color: Color(0xFF00F0FF)),
@@ -204,14 +204,14 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                         child: Text(
                           _passwordController.text,
                           style: GoogleFonts.tomorrow(
-                            color: Color(0xFF00F0FF),
+                            color: const Color(0xFF00F0FF),
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
-                      InkWell(
+                      const InkWell(
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 16),
+                          padding: EdgeInsets.only(right: 16),
                           child: Icon(
                             Icons.copy_all,
                             color: Color(0xFF00F0FF),
@@ -280,9 +280,9 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                     min: 8.0,
                     max: 50.0,
                     divisions: 42,
-                    activeColor: Color(0xFF00F0FF),
-                    inactiveColor: Color(0xFF00F0FF),
-                    thumbColor: Color(0xFFF8EF00),
+                    activeColor: const Color(0xFF00F0FF),
+                    inactiveColor: const Color(0xFF00F0FF),
+                    thumbColor: const Color(0xFFF8EF00),
                     label: length.toString(),
                     onChanged: (value) {
                       setState(() {
@@ -367,7 +367,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                             ),
                           ),
                           IconButton(
-                            icon: Icon(Icons.copy),
+                            icon: const Icon(Icons.copy),
                             onPressed: () {
                               Clipboard.setData(
                                   ClipboardData(text: _passwordController.text));
@@ -384,7 +384,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                                         textAlign: TextAlign.center,
                                         style: GoogleFonts.tomorrow(
                                           fontSize: 30,
-                                          color: Color(0xFFF8EF00), // Set text color
+                                          color: const Color(0xFFF8EF00), // Set text color
                                           fontWeight: FontWeight.w700,
                                         ),
                                       ),
@@ -403,7 +403,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
             ),
 
             // Generate button
-            Spacer(),
+            const Spacer(),
             Center(
               child: SizedBox(
                 width: double.infinity, // Specify the desired width
