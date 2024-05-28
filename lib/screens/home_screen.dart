@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:password_strength/password_strength.dart';
 
 class PasswordGeneratorScreen extends StatefulWidget {
@@ -20,6 +22,7 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
   bool includeLowercase = true;
   bool includeSymbols = false;
   final TextEditingController _passwordController = TextEditingController();
+  List<String> passwordHistory = [];
 
   @override
   void initState() {
@@ -28,16 +31,46 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
   }
 
   void _generatePassword() {
+    // Clear previous password
     setState(() {
-      password = generatePassword(
-        length,
-        includeNumbers,
-        includeUppercase,
-        includeLowercase,
-        includeSymbols,
-      );
+      password = '';
       _passwordController.text = password;
     });
+
+    // Generate password character by character with a delay
+    int index = 0;
+    Timer.periodic(Duration(milliseconds: 50), (timer) {
+      setState(() {
+        if (index < length) {
+          password += generatePasswordCharacter();
+          _passwordController.text = password;
+          index++;
+        } else {
+          timer.cancel();
+          _addToPasswordHistory(password);
+        }
+      });
+    });
+  }
+
+  void _addToPasswordHistory(String newPassword) {
+    // Add the new password to the beginning of the history list
+    passwordHistory.insert(0, newPassword);
+
+    // Limit the history list to store only the last 5 passwords
+    if (passwordHistory.length > 5) {
+      passwordHistory.removeLast();
+    }
+  }
+
+  String generatePasswordCharacter() {
+    String allCharacters = '';
+    if (includeNumbers) allCharacters += '0123456789';
+    if (includeUppercase) allCharacters += 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    if (includeLowercase) allCharacters += 'abcdefghijklmnopqrstuvwxyz';
+    if (includeSymbols) allCharacters += '!@#\$%^&*()_+-=[]{};:,./<>?';
+
+    return allCharacters[Random().nextInt(allCharacters.length)];
   }
 
   String generatePassword(int length, bool includeNumbers,
@@ -78,24 +111,27 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
           width: 24,
           height: 24,
           decoration: ShapeDecoration(
-            color: Colors.white,
+            color: Colors.transparent,
             shape: RoundedRectangleBorder(
-              side: const BorderSide(width: 1, color: Color(0xFFC5D6E0)),
-              borderRadius: BorderRadius.circular(7),
+              side: const BorderSide(width: 3, color: Color(0xFFF8EF00)),
+              // borderRadius: BorderRadius.circular(7),
             ),
           ),
           child: Checkbox(
             value: value,
             onChanged: onChanged,
             activeColor: Colors.transparent,
-            checkColor: Colors.black,
+            checkColor: Color(0xFFF8EF00),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(7),
             ),
             side: const BorderSide(color: Colors.transparent),
           ),
         ),
-        Text("   $label"),
+        Text(
+          "   $label",
+          style: TextStyle(color: Colors.white),
+        ),
       ],
     );
   }
@@ -105,62 +141,86 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
     double strength = _calculatePasswordStrength(password);
 
     return Scaffold(
+      backgroundColor: Colors.black, // Change the background color here
+
       appBar: AppBar(
-        title: const Text('Password Generator'),
+        backgroundColor: Colors.black, // Customize the app bar color
+        title: Text(
+          'PASSWORD \nGENERATOR',
+          style: GoogleFonts.tomorrow(
+            color: Color(0xFFF8EF00),
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+        centerTitle: true, // Align the title to the center
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(20.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Password field
-            GestureDetector(
-              onTap: () {
-                Clipboard.setData(
-                    ClipboardData(text: _passwordController.text));
-                // Optionally show a snackbar or toast to indicate the text has been copied
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Password copied to clipboard')),
-                );
-              },
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(28),
-                  border: Border.all(
-                    color: strength > 0.7
-                  ? Colors.green
-                      : (strength > 0.4 ? Colors.orange : Colors.red),
-                    width: 1,
-                  ),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        _passwordController.text,
-                        style: const TextStyle(
-                          height: 1.4,
-                          color: Colors.black, // Adjust color as needed
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 16),
-                        child: Icon(
-                          Icons.copy_all,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-
+            SizedBox(
+              height: 30,
             ),
+            GestureDetector(
+                onTap: () {
+                  Clipboard.setData(
+                      ClipboardData(text: _passwordController.text));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      behavior: SnackBarBehavior.fixed,
+                      backgroundColor: Colors.black, // Set background color
+                      content: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        height: MediaQuery.of(context).size.height / 4,
+                        child: Center(
+                          child: Text(
+                            'Password copied to clipboard',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.tomorrow(
+                              fontSize: 30,
+                              color: Color(0xFFF8EF00), // Set text color
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: ShapeDecoration(
+                    color: Color(0x1900F0FF),
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(width: 2, color: Color(0xFF00F0FF)),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          _passwordController.text,
+                          style: GoogleFonts.tomorrow(
+                            color: Color(0xFF00F0FF),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                      InkWell(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 16),
+                          child: Icon(
+                            Icons.copy_all,
+                            color: Color(0xFF00F0FF),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
             const SizedBox(height: 10),
 
             // Password strength indicator
@@ -193,7 +253,14 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text('Password length:'),
+                Text(
+                  'Password length:',
+                  style: GoogleFonts.tomorrow(
+                    fontSize: 20,
+                    color: Colors.white, // Set text color
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 Text(length.toString()),
               ],
             ),
@@ -202,7 +269,10 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
               children: [
                 IconButton(
                   onPressed: _decrementLength,
-                  icon: const Icon(Icons.remove),
+                  icon: const Icon(
+                    Icons.remove,
+                    color: Color(0xFF00F0FF),
+                  ),
                 ),
                 Expanded(
                   child: Slider(
@@ -210,6 +280,9 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                     min: 8.0,
                     max: 50.0,
                     divisions: 42,
+                    activeColor: Color(0xFF00F0FF),
+                    inactiveColor: Color(0xFF00F0FF),
+                    thumbColor: Color(0xFFF8EF00),
                     label: length.toString(),
                     onChanged: (value) {
                       setState(() {
@@ -220,12 +293,21 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                 ),
                 IconButton(
                   onPressed: _incrementLength,
-                  icon: const Icon(Icons.add),
+                  icon: const Icon(
+                    Icons.add,
+                    color: Color(0xFF00F0FF),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 10),
-            const Text('Characters used:'),
+             Text(
+              'Characters used:',
+              style: GoogleFonts.tomorrow(
+                fontSize: 20,
+                color: Colors.white, // Set text color
+                fontWeight: FontWeight.w700,
+              ),            ),
             const SizedBox(height: 10),
 
             // Option checkboxes
@@ -254,22 +336,98 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
                 }),
               ],
             ),
+            const SizedBox(height: 10),
+
+            ExpansionTile(
+              title:Text(
+                'Password History:',
+                style: GoogleFonts.tomorrow(
+                  fontSize: 20,
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              collapsedIconColor: Colors.white,
+              iconColor: Colors.white,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: passwordHistory.map((prevPassword) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 1.0), // Add space between items
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              prevPassword,
+                              style: GoogleFonts.tomorrow(
+                                color: Colors.grey,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.copy),
+                            onPressed: () {
+                              Clipboard.setData(
+                                  ClipboardData(text: _passwordController.text));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  behavior: SnackBarBehavior.fixed,
+                                  backgroundColor: Colors.black, // Set background color
+                                  content: SizedBox(
+                                    width: MediaQuery.of(context).size.width,
+                                    height: MediaQuery.of(context).size.height / 4,
+                                    child: Center(
+                                      child: Text(
+                                        'Password copied to clipboard',
+                                        textAlign: TextAlign.center,
+                                        style: GoogleFonts.tomorrow(
+                                          fontSize: 30,
+                                          color: Color(0xFFF8EF00), // Set text color
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+
+              ],
+            ),
 
             // Generate button
+            Spacer(),
             Center(
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor:
-                      WidgetStateProperty.all(const Color(0xFF0070F6)),
-                  shape: WidgetStateProperty.all(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(400),
+              child: SizedBox(
+                width: double.infinity, // Specify the desired width
+                height: 50,
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(
+                      const Color(0xFFF8EF00),
+                    ),
+                    shape: WidgetStateProperty.all(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(0),
+                      ),
+                    ),
+                  ),
+                  onPressed: _generatePassword,
+                  child: Text(
+                    'GENERATE_',
+                    style: GoogleFonts.tomorrow(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
-                onPressed: _generatePassword,
-                child: const Text('Generate',
-                    style: TextStyle(color: Colors.white)),
               ),
             ),
           ],
