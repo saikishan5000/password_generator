@@ -16,20 +16,67 @@ class PasswordGeneratorScreen extends StatefulWidget {
 
 class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
   String password = "";
-  int length = 50;
+  int length = 8;
   bool includeNumbers = true;
   bool includeUppercase = true;
   bool includeLowercase = true;
   bool includeSymbols = false;
   final TextEditingController _passwordController = TextEditingController();
   List<String> passwordHistory = [];
+  String customCharacters = '';
 
   @override
   void initState() {
     super.initState();
     _passwordController.text = password;
   }
+// Inside the PasswordGeneratorScreen class
 
+// Widget to build the text box for user input
+  Widget _buildCustomInputField() {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20.0),
+      child: Container(
+        decoration: ShapeDecoration(
+          color: Color(0xffFF003B),
+          shape: RoundedRectangleBorder(
+            side: BorderSide(width: 2, color: Color(0xFFFF003C)),
+            borderRadius: BorderRadius.circular(0),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: TextField(
+            onChanged: (value) {
+              setState(() {
+                customCharacters = value;
+              });
+            },
+            decoration: InputDecoration(
+              labelText: 'Password Prompt',
+              labelStyle: GoogleFonts.tomorrow(
+              fontSize: 10,
+              color: const Color(0xFFF8EF00), // Set text color
+              fontWeight: FontWeight.w700,
+            ),
+            hintText: 'Enter additional details to include',
+              hintStyle: GoogleFonts.tomorrow(
+              fontSize: 15,
+              color: Colors.white, // Set text color
+              fontWeight: FontWeight.w700,
+            ),
+              border: InputBorder.none,
+              focusedBorder: InputBorder.none,
+            ),
+            style: GoogleFonts.tomorrow(
+              fontSize: 20,
+              color: const Color(0xFFF8EF00), // Set text color
+              fontWeight: FontWeight.w700,
+            ),          ),
+        ),
+      ),
+    );
+  }
   void _generatePassword() {
     // Clear previous password
     setState(() {
@@ -156,281 +203,285 @@ class _PasswordGeneratorScreenState extends State<PasswordGeneratorScreen> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Password field
-            const SizedBox(
-              height: 30,
-            ),
-            GestureDetector(
-                onTap: () {
-                  Clipboard.setData(
-                      ClipboardData(text: _passwordController.text));
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      behavior: SnackBarBehavior.fixed,
-                      backgroundColor: Colors.black, // Set background color
-                      content: SizedBox(
-                        width: MediaQuery.of(context).size.width,
-                        height: MediaQuery.of(context).size.height / 4,
-                        child: Center(
-                          child: Text(
-                            'Password copied to clipboard',
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.tomorrow(
-                              fontSize: 30,
-                              color: const Color(0xFFF8EF00), // Set text color
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: const ShapeDecoration(
-                    color: Color(0x1900F0FF),
-                    shape: RoundedRectangleBorder(
-                      side: BorderSide(width: 2, color: Color(0xFF00F0FF)),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          _passwordController.text,
-                          style: GoogleFonts.tomorrow(
-                            color: const Color(0xFF00F0FF),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                      const InkWell(
-                        child: Padding(
-                          padding: EdgeInsets.only(right: 16),
-                          child: Icon(
-                            Icons.copy_all,
-                            color: Color(0xFF00F0FF),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )),
-            const SizedBox(height: 10),
-
-            // Password strength indicator
-            Row(
-              children: [
-                Expanded(
-                  child: LinearProgressIndicator(
-                    value: strength,
-                    color: strength > 0.7
-                        ? Colors.green
-                        : (strength > 0.4 ? Colors.orange : Colors.red),
-                    backgroundColor: Colors.grey[300],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Text(
-                  strength > 0.7
-                      ? 'Very strong'
-                      : (strength > 0.4 ? 'Strong' : 'Weak'),
-                  style: TextStyle(
-                    color: strength > 0.7
-                        ? Colors.green
-                        : (strength > 0.4 ? Colors.orange : Colors.red),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Length slider with custom buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Password length:',
-                  style: GoogleFonts.tomorrow(
-                    fontSize: 20,
-                    color: Colors.white, // Set text color
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                Text(length.toString()),
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  onPressed: _decrementLength,
-                  icon: const Icon(
-                    Icons.remove,
-                    color: Color(0xFF00F0FF),
-                  ),
-                ),
-                Expanded(
-                  child: Slider(
-                    value: length.toDouble(),
-                    min: 8.0,
-                    max: 50.0,
-                    divisions: 42,
-                    activeColor: const Color(0xFF00F0FF),
-                    inactiveColor: const Color(0xFF00F0FF),
-                    thumbColor: const Color(0xFFF8EF00),
-                    label: length.toString(),
-                    onChanged: (value) {
-                      setState(() {
-                        length = value.toInt();
-                      });
-                    },
-                  ),
-                ),
-                IconButton(
-                  onPressed: _incrementLength,
-                  icon: const Icon(
-                    Icons.add,
-                    color: Color(0xFF00F0FF),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-             Text(
-              'Characters used:',
-              style: GoogleFonts.tomorrow(
-                fontSize: 20,
-                color: Colors.white, // Set text color
-                fontWeight: FontWeight.w700,
-              ),            ),
-            const SizedBox(height: 10),
-
-            // Option checkboxes
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildCheckbox('123', includeNumbers, (value) {
-                  setState(() {
-                    includeNumbers = value!;
-                  });
-                }),
-                _buildCheckbox('ABC', includeUppercase, (value) {
-                  setState(() {
-                    includeUppercase = value!;
-                  });
-                }),
-                _buildCheckbox('abc', includeLowercase, (value) {
-                  setState(() {
-                    includeLowercase = value!;
-                  });
-                }),
-                _buildCheckbox('#\$&', includeSymbols, (value) {
-                  setState(() {
-                    includeSymbols = value!;
-                  });
-                }),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            ExpansionTile(
-              title:Text(
-                'Password History:',
-                style: GoogleFonts.tomorrow(
-                  fontSize: 20,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Password field
+              const SizedBox(
+                height: 30,
               ),
-              collapsedIconColor: Colors.white,
-              iconColor: Colors.white,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: passwordHistory.map((prevPassword) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 1.0), // Add space between items
-                      child: Row(
-                        children: [
-                          Expanded(
+              GestureDetector(
+                  onTap: () {
+                    Clipboard.setData(
+                        ClipboardData(text: _passwordController.text));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        behavior: SnackBarBehavior.fixed,
+                        backgroundColor: Colors.black, // Set background color
+                        content: SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height / 4,
+                          child: Center(
                             child: Text(
-                              prevPassword,
+                              'Password copied to clipboard',
+                              textAlign: TextAlign.center,
                               style: GoogleFonts.tomorrow(
-                                color: Colors.grey,
-                                fontWeight: FontWeight.w600,
+                                fontSize: 30,
+                                color: const Color(0xFFF8EF00), // Set text color
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.copy),
-                            onPressed: () {
-                              Clipboard.setData(
-                                  ClipboardData(text: _passwordController.text));
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  behavior: SnackBarBehavior.fixed,
-                                  backgroundColor: Colors.black, // Set background color
-                                  content: SizedBox(
-                                    width: MediaQuery.of(context).size.width,
-                                    height: MediaQuery.of(context).size.height / 4,
-                                    child: Center(
-                                      child: Text(
-                                        'Password copied to clipboard',
-                                        textAlign: TextAlign.center,
-                                        style: GoogleFonts.tomorrow(
-                                          fontSize: 30,
-                                          color: const Color(0xFFF8EF00), // Set text color
-                                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: const ShapeDecoration(
+                      color: Color(0x1900F0FF),
+                      shape: RoundedRectangleBorder(
+                        side: BorderSide(width: 2, color: Color(0xFF00F0FF)),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _passwordController.text,
+                            style: GoogleFonts.tomorrow(
+                              color: const Color(0xFF00F0FF),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const InkWell(
+                          child: Padding(
+                            padding: EdgeInsets.only(right: 16),
+                            child: Icon(
+                              Icons.copy_all,
+                              color: Color(0xFF00F0FF),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )),
+              const SizedBox(height: 10),
+          
+              // Password strength indicator
+              Row(
+                children: [
+                  Expanded(
+                    child: LinearProgressIndicator(
+                      value: strength,
+                      color: strength > 0.7
+                          ? Colors.green
+                          : (strength > 0.4 ? Colors.orange : Colors.red),
+                      backgroundColor: Colors.grey[300],
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    strength > 0.7
+                        ? 'Very strong'
+                        : (strength > 0.4 ? 'Strong' : 'Weak'),
+                    style: TextStyle(
+                      color: strength > 0.7
+                          ? Colors.green
+                          : (strength > 0.4 ? Colors.orange : Colors.red),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              // Length slider with custom buttons
+              Row(
+                // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Password length:',
+                    style: GoogleFonts.tomorrow(
+                      fontSize: 20,
+                      color: Colors.white, // Set text color
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Text(length.toString(), style: GoogleFonts.tomorrow(
+                    fontSize: 20,
+                    color: Colors.white, // Set text color
+                    fontWeight: FontWeight.w700,
+                  ),),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  IconButton(
+                    onPressed: _decrementLength,
+                    icon: const Icon(
+                      Icons.remove,
+                      color: Color(0xFF00F0FF),
+                    ),
+                  ),
+                  Expanded(
+                    child: Slider(
+                      value: length.toDouble(),
+                      min: 8.0,
+                      max: 50.0,
+                      divisions: 42,
+                      activeColor: const Color(0xFF00F0FF),
+                      inactiveColor: const Color(0xFF00F0FF),
+                      thumbColor: const Color(0xFFF8EF00),
+                      label: length.toString(),
+                      onChanged: (value) {
+                        setState(() {
+                          length = value.toInt();
+                        });
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: _incrementLength,
+                    icon: const Icon(
+                      Icons.add,
+                      color: Color(0xFF00F0FF),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+               Text(
+                'Characters used:',
+                style: GoogleFonts.tomorrow(
+                  fontSize: 20,
+                  color: Colors.white, // Set text color
+                  fontWeight: FontWeight.w700,
+                ),            ),
+              const SizedBox(height: 10),
+          
+              // Option checkboxes
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  _buildCheckbox('123', includeNumbers, (value) {
+                    setState(() {
+                      includeNumbers = value!;
+                    });
+                  }),
+                  _buildCheckbox('ABC', includeUppercase, (value) {
+                    setState(() {
+                      includeUppercase = value!;
+                    });
+                  }),
+                  _buildCheckbox('abc', includeLowercase, (value) {
+                    setState(() {
+                      includeLowercase = value!;
+                    });
+                  }),
+                  _buildCheckbox('#\$&', includeSymbols, (value) {
+                    setState(() {
+                      includeSymbols = value!;
+                    });
+                  }),
+                ],
+              ),
+              const SizedBox(height: 10),
+          
+              ExpansionTile(
+                title:Text(
+                  'Password History:',
+                  style: GoogleFonts.tomorrow(
+                    fontSize: 20,
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                collapsedIconColor: Colors.white,
+                iconColor: Colors.white,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: passwordHistory.map((prevPassword) {
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 1.0), // Add space between items
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                prevPassword,
+                                style: GoogleFonts.tomorrow(
+                                  color: Colors.grey,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.copy),
+                              onPressed: () {
+                                Clipboard.setData(
+                                    ClipboardData(text: _passwordController.text));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    behavior: SnackBarBehavior.fixed,
+                                    backgroundColor: Colors.black, // Set background color
+                                    content: SizedBox(
+                                      width: MediaQuery.of(context).size.width,
+                                      height: MediaQuery.of(context).size.height / 4,
+                                      child: Center(
+                                        child: Text(
+                                          'Password copied to clipboard',
+                                          textAlign: TextAlign.center,
+                                          style: GoogleFonts.tomorrow(
+                                            fontSize: 30,
+                                            color: const Color(0xFFF8EF00), // Set text color
+                                            fontWeight: FontWeight.w700,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                ),
-                              );                            },
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
-                ),
-
-              ],
-            ),
-
-            // Generate button
-            const Spacer(),
-            Center(
-              child: SizedBox(
-                width: double.infinity, // Specify the desired width
-                height: 50,
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(
-                      const Color(0xFFF8EF00),
-                    ),
-                    shape: WidgetStateProperty.all(
-                      RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(0),
-                      ),
-                    ),
+                                );                            },
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
-                  onPressed: _generatePassword,
-                  child: Text(
-                    'GENERATE_',
-                    style: GoogleFonts.tomorrow(
-                      color: Colors.black,
-                      fontWeight: FontWeight.w700,
+          
+                ],
+              ),
+              _buildCustomInputField(), // Add this line to include the custom input field
+              Center(
+                child: SizedBox(
+                  width: double.infinity, // Specify the desired width
+                  height: 50,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateProperty.all(
+                        const Color(0xFFF8EF00),
+                      ),
+                      shape: WidgetStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(0),
+                        ),
+                      ),
+                    ),
+                    onPressed: _generatePassword,
+                    child: Text(
+                      'GENERATE_',
+                      style: GoogleFonts.tomorrow(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
